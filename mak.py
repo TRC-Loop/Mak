@@ -109,7 +109,8 @@ if __name__ == "__main__":
     match command:
         case "help":
             display_help()
-
+        case "version":
+            display_version()
     sys.exit(0)
 
 
