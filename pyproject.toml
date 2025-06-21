@@ -1,0 +1,12 @@
+[project]
+name = "mak"
+version = "0.0.0.dev0"
+description = "Make aliases and chained commands, in your Terminal"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "orjson>=3.10.18",
+    "platformdirs>=4.3.8",
+    "rich>=14.0.0",
+    "typer>=0.16.0",
+]
