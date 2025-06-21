@@ -42,8 +42,9 @@ def version(
     pure: Annotated[bool, typer.Option("--pure", "-p", "--raw", "-r", help="Return version only")] = False,
     sparse: Annotated[bool, typer.Option("--sparse", "-s", help="Show semantic version parts")] = False,
 ):
+    base_ver = ".".join(map(str, VERSION))
     if pure:
-        print(".".join(map(str, VERSION)))
+        print(base_ver)
         raise typer.Exit()
 
     if sparse:
@@ -52,13 +53,9 @@ def version(
         print("Patch:", VERSION[2])
         raise typer.Exit()
 
-    print("Version:", ".".join(map(str, VERSION)))
+    print("Version:", base_ver)
 
 
-   
-
-
-    
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.", rich_help_panel="Keybinds")
 app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.", rich_help_panel="Makros")
 app.add_typer(config_app, name="config", help="Manage Configuration of Mak.", rich_help_panel="Mak Settings")
