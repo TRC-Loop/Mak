@@ -12,8 +12,12 @@ APP_NAME = os.getenv("MAK_APP_NAME", "TRCLoop/Mak")
 CONFIG_NAME = os.getenv("MAK_CONFIG_NAME", "config.json")
 DATASTORE_NAME = os.getenv("MAK_DATASTORE_NAME", "data.json")
 
+
+GITHUB_LINK = "https://github.com/TRC-Loop/Mak"
+ASCII_ART = "                                                               █████             \n                                                              ███████            \n     ██████████████████         ███████                       ███████            \n    ██████     █████████       ████████                       ███████            \n   ██████      █████████      ████████                       ███████             \n   ██████      █████████     █████████     ████████████████  █████████████████   \n   ██████     ███████████   ███ ██████   ██████    ███████   ████████  ███████   \n    ██████    ███████████  ███ ███████  ██████     ███████  ████████   ███████   \n             ████ ███████ ████ ███████ ███████    ████████  ███████    ███████   \n            █████  ██████████  ██████  ██████     ███████   ███████  ███████     \n            ████   █████████  ███████ ███████     ███████  ███████ ███████       \n           ████    ████████   ███████ ███████    ███████   ███████ ███████       \n         ██████     ██████    ███████ ███████    ███████  ████████  ███████      \n      ████████      █████     ███████  ██████   █████████ ███████   █████████    \n       █████        ████      ████████   ███████  ███████ ███████     ██████     \n                              ████████                                           \n                               ████████                                          \n                                 ████"
 _config_dir = user_config_dir(APP_NAME)
 _config_path = os.path.join(_config_dir, CONFIG_NAME)
+_datastore_path = os.path.join(_config_dir, DATASTORE_NAME)
 
 os.makedirs(_config_path, exist_ok=True)
 
@@ -34,10 +38,14 @@ keybinds_app = typer.Typer()
 macros_app = typer.Typer()
 config_app = typer.Typer()
 
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    if ctx.invoked_subcommand is None:
+        info()
 
-@app.command(name="version", help="Get Version Info", rich_help_panel="Version")
-@app.command(name="ver", help="Get Version Info", rich_help_panel="Version")
-@app.command(name="v", help="Get Version Info", rich_help_panel="Version")
+@app.command(name="version", help="Get Version Info", rich_help_panel="Info")
+@app.command(name="ver", help="Get Version Info", rich_help_panel="Info")
+@app.command(name="v", help="Get Version Info", rich_help_panel="Info")
 def version(
     pure: Annotated[bool, typer.Option("--pure", "-p", "--raw", "-r", help="Return version only")] = False,
     sparse: Annotated[bool, typer.Option("--sparse", "-s", help="Show semantic version parts")] = False,
@@ -54,6 +62,16 @@ def version(
         raise typer.Exit()
 
     print("Version:", base_ver)
+
+@app.command(name="info", help="Display Info about Mak", rich_help_panel="Info")
+def info():
+    print(ASCII_ART)
+    print("Version",".".join(map(str, VERSION)))
+    print("Github", GITHUB_LINK)
+    print("Config Path", _config_path)
+    print("Datastore Path", _datastore_path)
+    print("App Name", APP_NAME)
+    print("Debug Mode", DEV_DEBUG_MODE)
 
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.", rich_help_panel="Keybinds")
