@@ -1,5 +1,12 @@
 # Mak
 Create Chains or Singular commands with an alias. Basically Makros, in the Terminal.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TRC-Loop/Mak/refs/heads/main/.github/static/Mak-w.svg" width=250>
+</p>
+
+> I know, it's macro but the program is called Mak, so makros (makro is german for macro)
+
+**DOCS COMING SOON (MKDOCS)**
 
 <p align="center">
 🌟 <strong>Star this repo on <a href="https://github.com/TRC-Loop/Mak/stargazers">Github</a>!</strong> 🌟
