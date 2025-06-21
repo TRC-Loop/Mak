@@ -96,6 +96,27 @@ def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for access
     save_data(data)
     print(f"Added keybind: {keybind}")
 
+@keybinds_app.command(name="list", help="List all Keybinds", rich_help_panel="Keybinds")
+def keybinds_list():
+    data = load_data()
+    keybinds = data.get("keybinds", [])
+    if not keybinds:
+        print("No keybinds found.")
+    else:
+        for kb in keybinds:
+            print(kb)
+
+@keybinds_app.command(name="remove", help="Remove a Keybind from list", rich_help_panel="Keybinds")
+def keybinds_remove(keybind: Annotated[str, typer.Argument(help="Keybind to remove")]):
+    data = load_data()
+    keybinds = data.get("keybinds", [])
+    if keybind not in keybinds:
+        print("Keybind not found.")
+        raise typer.Abort()
+
+    keybinds.remove(keybind)
+    save_data(data)
+    print(f"Removed keybind: {keybind}")
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.", rich_help_panel="Keybinds")
 app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.", rich_help_panel="Makros")
