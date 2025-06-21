@@ -19,18 +19,27 @@ _config_dir = user_config_dir(APP_NAME)
 _config_path = os.path.join(_config_dir, CONFIG_NAME)
 _datastore_path = os.path.join(_config_dir, DATASTORE_NAME)
 
-os.makedirs(_config_path, exist_ok=True)
-
 def load_config():
     if not os.path.exists(_config_path):
         return {}
     with open(_config_path, 'r') as f:
         return orjson.loads(f.read())
 
+def load_data():
+    if not os.path.exists(_datastore_path):
+        return {}
+    with open(_datastore_path, 'r') as f:
+        return orjson.loads(f.read())
+
 def save_config(cfg: dict):
     os.makedirs(_config_dir, exist_ok=True)
     with open(_config_path, 'wb') as f:
         f.write(orjson.dumps(cfg, option=orjson.OPT_INDENT_2))
+
+def save_data(data: dict):
+    os.makedirs(_config_dir, exist_ok=True)
+    with open(_datastore_path, 'wb') as f:
+        f.write(orjson.dumps(data, option=orjson.OPT_INDENT_2))
 
 app = typer.Typer()
 
@@ -72,6 +81,19 @@ def info():
     print("Datastore Path", _datastore_path)
     print("App Name", APP_NAME)
     print("Debug Mode", DEV_DEBUG_MODE)
+
+
+@keybinds_app.command(name="add", help="Add a new Keybind to list", rich_help_panel="Keybinds")
+def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for accessing Makros (Keep it short!)")]):
+    data = load_data()
+
+    if keybind in data.get("keybinds", []):
+        print("Keybind already exists.")
+        raise typer.Abort()
+
+    data.setdefault("keybinds", []).append(keybind)
+    save_data(data)
+    print(f"Added keybind: {keybind}")
 
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.", rich_help_panel="Keybinds")
