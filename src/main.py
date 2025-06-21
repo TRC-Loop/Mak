@@ -81,6 +81,7 @@ def info():
     print("Datastore Path", _datastore_path)
     print("App Name", APP_NAME)
     print("Debug Mode", DEV_DEBUG_MODE)
+    print("For help, use --help")
 
 
 @keybinds_app.command(name="add", help="Add a new Keybind to list", rich_help_panel="Keybinds")
