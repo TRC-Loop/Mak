@@ -6,6 +6,16 @@ from rich.table import Table
 from typing_extensions import Annotated
 from platformdirs import user_config_dir
 import orjson
+import re
+
+def sanitize_name(name: str) -> str:
+    # Replace spaces and underscores with hyphens
+    name = re.sub(r'[ _]+', '-', name)
+    # Remove all non-valid characters (keep alphanum, hyphen)
+    name = re.sub(r'[^a-zA-Z0-9\-]', '', name)
+    # Lowercase
+    return name.lower()
+
 
 VERSION = (0,0,0)
 
@@ -87,14 +97,18 @@ def info():
 @keybinds_app.command(name="add", help="Add a new Keybind to list")
 def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for accessing Makros (Keep it short!)")]):
     data = load_data()
+    _keybind = sanitize_name(keybind)
+    
+    if not _keybind == keybind:
+        print(f"Keybind Sanitized: {keybind} -> {_keybind}")
 
-    if keybind in data.get("keybinds", []):
+    if _keybind in data.get("keybinds", []):
         print("Keybind already exists.")
         raise typer.Abort()
 
-    data.setdefault("keybinds", []).append(keybind)
+    data.setdefault("keybinds", []).append(_keybind)
     save_data(data)
-    print(f"Added keybind: {keybind}")
+    print(f"Added keybind: {_keybind}")
 
 @keybinds_app.command(name="list", help="List all Keybinds")
 def keybinds_list():
@@ -130,6 +144,33 @@ def keybinds_remove(keybind: Annotated[str, typer.Argument(help="Keybind to remo
     save_data(data)
     print(f"Removed keybind: {keybind}")
 
+
+
+@macros_app.command(name="add", help="Create a new makro")
+def macros_add(
+    keybind: Annotated[str, typer.Argument(help="Existing Keybind to map makro to")],
+    name: Annotated[str, typer.Argument(help="Name used to call/use makro")],
+    command: Annotated[
+        str,
+        typer.Argument(
+            help=(
+                "Set the command executed. Use {<0, 1, ...>} for arguments and "
+                "separate commands using (default) ; (semicolons). "
+                "Example: 'mkdir {0};cd {0};touch {1}.txt'"
+            )
+        ),
+    ],
+    seperator: Annotated[
+        str,
+        typer.Option(
+            "-s", "--seperator", "--sep",
+            help="One-Char separator for command",
+            show_default=True
+        )
+    ] = ";"
+):
+    data = load_data()
+    commands = command.split(seperator)
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.") 
 app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.")
 app.add_typer(config_app, name="config", help="Manage Configuration of Mak.")
