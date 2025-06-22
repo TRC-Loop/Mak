@@ -1,6 +1,8 @@
 import typer
 import os
 from rich import print
+from rich.console import Console
+from rich.table import Table
 from typing_extensions import Annotated
 from platformdirs import user_config_dir
 import orjson
@@ -52,9 +54,7 @@ def main(ctx: typer.Context):
     if ctx.invoked_subcommand is None:
         info()
 
-@app.command(name="version", help="Get Version Info", rich_help_panel="Info")
-@app.command(name="ver", help="Get Version Info", rich_help_panel="Info")
-@app.command(name="v", help="Get Version Info", rich_help_panel="Info")
+@app.command(name="version", help="Get Version Info")
 def version(
     pure: Annotated[bool, typer.Option("--pure", "-p", "--raw", "-r", help="Return version only")] = False,
     sparse: Annotated[bool, typer.Option("--sparse", "-s", help="Show semantic version parts")] = False,
@@ -72,7 +72,7 @@ def version(
 
     print("Version:", base_ver)
 
-@app.command(name="info", help="Display Info about Mak", rich_help_panel="Info")
+@app.command(name="info", help="Display Info about Mak")
 def info():
     print(ASCII_ART)
     print("Version",".".join(map(str, VERSION)))
@@ -84,7 +84,7 @@ def info():
     print("For help, use --help")
 
 
-@keybinds_app.command(name="add", help="Add a new Keybind to list", rich_help_panel="Keybinds")
+@keybinds_app.command(name="add", help="Add a new Keybind to list")
 def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for accessing Makros (Keep it short!)")]):
     data = load_data()
 
@@ -96,17 +96,29 @@ def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for access
     save_data(data)
     print(f"Added keybind: {keybind}")
 
-@keybinds_app.command(name="list", help="List all Keybinds", rich_help_panel="Keybinds")
+@keybinds_app.command(name="list", help="List all Keybinds")
 def keybinds_list():
     data = load_data()
     keybinds = data.get("keybinds", [])
     if not keybinds:
         print("No keybinds found.")
     else:
-        for kb in keybinds:
-            print(kb)
+        if not keybinds:
+            print("No keybinds found.")
+            return
 
-@keybinds_app.command(name="remove", help="Remove a Keybind from list", rich_help_panel="Keybinds")
+        console = Console()
+        table = Table(title="Registered Keybinds")
+
+        table.add_column("Index", justify="right", style="cyan", no_wrap=True)
+        table.add_column("Keybind", style="magenta")
+
+        for i, kb in enumerate(keybinds, 1):
+            table.add_row(str(i), kb)
+
+        print(table)
+
+@keybinds_app.command(name="remove", help="Remove a Keybind from list")
 def keybinds_remove(keybind: Annotated[str, typer.Argument(help="Keybind to remove")]):
     data = load_data()
     keybinds = data.get("keybinds", [])
@@ -118,9 +130,9 @@ def keybinds_remove(keybind: Annotated[str, typer.Argument(help="Keybind to remo
     save_data(data)
     print(f"Removed keybind: {keybind}")
 
-app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.", rich_help_panel="Keybinds")
-app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.", rich_help_panel="Makros")
-app.add_typer(config_app, name="config", help="Manage Configuration of Mak.", rich_help_panel="Mak Settings")
+app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.") 
+app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.")
+app.add_typer(config_app, name="config", help="Manage Configuration of Mak.")
 
 if __name__ == "__main__":
     app()
