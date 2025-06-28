@@ -22,3 +22,21 @@ Create Chains or Singular commands with an alias. Basically Makros, in the Termi
   <img src="https://img.shields.io/badge/macOS-Supported-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Supported">
   <img src="https://img.shields.io/badge/Linux-Supported-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux Supported">
 </p>
+
+# Install (and Update)
+
+**Windows**
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& { iwr -useb https://raw.githubusercontent.com/TRC-Loop/Mak/main/scripts/install.ps1 | iex }"
+```
+
+> Uninstall:
+> `powershell -NoProfile -ExecutionPolicy Bypass -Command "& { iwr -useb https://raw.githubusercontent.com/TRC-Loop/Mak/main/scripts/uninstall.ps1 | iex }"`
+
+**Linux/MacOS**
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/TRC-Loop/Mak/main/scripts/install.sh)"
+```
+
+> Uninstall:
+> `bash -c "$(curl -fsSL https://raw.githubusercontent.com/TRC-Loop/Mak/main/scripts/uninstall.sh)"`
