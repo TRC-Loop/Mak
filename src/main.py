@@ -1,9 +1,15 @@
 import typer
+import subprocess
 import os
+import questionary
 from rich import print
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
-from typing_extensions import Annotated
+from rich.prompt import Prompt
+from rich.align import Align
+from typing_extensions import Annotated, Optional
+from typing import List
 from platformdirs import user_config_dir
 import orjson
 import re
@@ -202,28 +208,95 @@ def macros_list(
 
     print(table)
 
-@macros_app.command(name="remove", help="Remove a macro from a keybind")
-def macros_remove(
-    keybind: Annotated[str, typer.Argument(help="Keybind to remove macro from")],
-    name: Annotated[str, typer.Argument(help="Macro name to remove")]
+def select_from_list(title: str, options: list[str]) -> str:
+    console = Console()
+    if not options:
+        console.print("[red]No options to choose from.[/red]")
+        raise Exception("No options")
+
+    table = Table(show_header=False)
+    for i, opt in enumerate(options, 1):
+        table.add_row(f"{i}.", opt)
+    panel = Panel(Align.center(table), title=title, padding=(1, 2))
+
+    console.clear()
+    console.print(panel)
+
+    answer = questionary.select(
+        message=f"{title}:",
+        choices=options,
+        use_arrow_keys=True,
+        qmark="▶"
+    ).ask()
+
+    console.clear()
+    if answer is None:
+        raise Exception("No selection made")
+    return answer
+@app.command(name="run", help="Run a macro from a keybind")
+def run_macro(
+    keybind: Optional[str] = typer.Argument(None),
+    name: Optional[str] = typer.Argument(None),
+    args: Optional[List[str]] = typer.Argument(None),
 ):
+    args = args or []
+
+    console = Console()
     data = load_data()
+
+    if not data:
+        console.print("[bold red]No macros found.[/bold red]")
+        raise typer.Exit()
+
+    if not keybind:
+        keybind = select_from_list("Available Keybinds", list(data.keys()))
+
     if keybind not in data:
-        print(f"Keybind '{keybind}' not found.")
+        console.print(f"[red]Keybind '{keybind}' not found.[/red]")
         raise typer.Abort()
 
     macros = data[keybind].get("macros", [])
+    if not macros:
+        console.print(f"[red]No macros available under keybind '{keybind}'.[/red]")
+        raise typer.Exit()
+
+    if not name:
+        macro_names = [m["name"] for m in macros]
+        name = select_from_list(f"Available Macros for '{keybind}'", macro_names)
+
     name = sanitize_name(name)
-
-    new_macros = [m for m in macros if m["name"] != name]
-
-    if len(new_macros) == len(macros):
-        print(f"No macro named '{name}' found under '{keybind}'.")
+    macro = next((m for m in macros if m["name"] == name), None)
+    if not macro:
+        console.print(f"[red]Macro '{name}' not found under keybind '{keybind}'.[/red]")
         raise typer.Abort()
 
-    data[keybind]["macros"] = new_macros
-    save_data(data)
-    print(f"Macro '{name}' removed from keybind '{keybind}'.")
+    arg_indices = sorted(
+        set(int(i) for cmd in macro["commands"] for i in re.findall(r"{(\d+)}", cmd))
+    )
+
+    # Falls zu wenig Argumente gegeben, noch abfragen
+    while len(args) < len(arg_indices):
+        idx = arg_indices[len(args)]
+        val = typer.prompt(f"Enter value for argument {{{idx}}}")
+        args.append(val)
+
+    console.print()
+    console.print(f"[bold green]Executing macro:[/bold green] [cyan]{name}[/cyan]\n[dim]Keybind: {keybind}[/dim]")
+
+    for raw_cmd in macro["commands"]:
+        try:
+            resolved_cmd = raw_cmd.format(*args)
+        except IndexError:
+            console.print(f"[red]Missing arguments for command: '{raw_cmd}'[/red]")
+            raise typer.Abort()
+
+        console.print(f"[green]→ {resolved_cmd}[/green]")
+        result = subprocess.run(resolved_cmd, shell=True)
+
+        if result.returncode != 0:
+            console.print(f"[red]Command failed with code {result.returncode}[/red]")
+            raise typer.Exit(code=result.returncode)
+
 
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.") 
