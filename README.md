@@ -43,3 +43,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/TRC-Loop/Mak/main/script
 
 # License
 This project is licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
+
+---
+I may rewrite this in go or rust, so it's even faster, if you want to help me do that, message me on [my discord](https://gamorize.com/discord). Thank you!
