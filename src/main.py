@@ -32,7 +32,7 @@ def sanitize_name(name: str) -> str:
     return name.lower()
 
 
-VERSION = (1, 0, 1)
+VERSION = (1, 0, 2)
 
 DEV_DEBUG_MODE = os.getenv("MAK_DEBUG_MODE", "False").lower() == "true"
 APP_NAME = os.getenv("MAK_APP_NAME", "TRCLoop/Mak")
@@ -200,7 +200,7 @@ def keybinds_list():
         return
 
     table = Table(title="Registered Keybinds")
-    table.add_column("Index", justify="right", style="cyan")
+    table.add_column("#", justify="right", style="cyan")
     table.add_column("Keybind", style="magenta")
 
     for i, kb in enumerate(keybinds, 1):
@@ -276,7 +276,7 @@ def macros_list(
         return
 
     table = Table(title=f"Macros for '{keybind}'")
-    table.add_column("Index", justify="right", style="cyan")
+    table.add_column("#", justify="right", style="cyan")
     table.add_column("Name", style="magenta")
     table.add_column("Commands", style="green")
 
@@ -393,7 +393,7 @@ def run_macro(
 
         if result.returncode != 0:
             console.print(f"[red]Command failed with code {result.returncode}[/red]")
-            raise typer.Abort(code=result.returncode)
+            raise typer.Abort()
 
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.")
