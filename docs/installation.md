@@ -33,6 +33,8 @@ Make sure the following tools are installed and accessible:
 
 ## Installation / Update
 
+*By installing, you agree to the [License](https://github.com/TRC-Loop/Mak?tab=GPL-3.0-1-ov-file#readme)*
+
 === "Windows"
 
     ```powershell

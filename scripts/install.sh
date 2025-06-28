@@ -1,11 +1,13 @@
-
 #!/bin/bash
+
 set -euo pipefail
 
 REPO_URL="https://github.com/TRC-Loop/Mak.git"
 CLONE_DIR="$HOME/Mak"
 SCRIPT_SRC="$CLONE_DIR/src/main.py"
 LAUNCHER_PATH="/usr/local/bin/mak"
+
+echo "By installing, you agree to the License."
 
 echo "ℹ️  Cloning repository..."
 if [ -d "$CLONE_DIR" ]; then

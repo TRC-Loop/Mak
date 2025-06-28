@@ -1,6 +1,8 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+Write-Host "By installing, you agree to the License."
+
 $repoUrl = "https://github.com/TRC-Loop/Mak.git"
 $cloneDir = "$env:USERPROFILE\Mak"
 $scriptSrc = "$cloneDir\src\main.py"
