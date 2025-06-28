@@ -214,14 +214,6 @@ def select_from_list(title: str, options: list[str]) -> str:
         console.print("[red]No options to choose from.[/red]")
         raise Exception("No options")
 
-    table = Table(show_header=False)
-    for i, opt in enumerate(options, 1):
-        table.add_row(f"{i}.", opt)
-    panel = Panel(Align.center(table), title=title, padding=(1, 2))
-
-    console.clear()
-    console.print(panel)
-
     answer = questionary.select(
         message=f"{title}:",
         choices=options,
@@ -233,6 +225,7 @@ def select_from_list(title: str, options: list[str]) -> str:
     if answer is None:
         raise Exception("No selection made")
     return answer
+
 @app.command(name="run", help="Run a macro from a keybind")
 def run_macro(
     keybind: Optional[str] = typer.Argument(None),
