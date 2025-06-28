@@ -1,5 +1,5 @@
 
-site_name: Mak
+site_name: Mak Documentation 
 theme:
   name: material
   features:
@@ -23,6 +23,8 @@ theme:
   repo_url: https://github.com/TRC-Loop/Mak
   repo_name: TRC-Loop/Mak
   repo_icon: fontawesome/brands/github
+  favicon: https://raw.githubusercontent.com/TRC-Loop/Mak/main/.github/static/MakDocs.svg
+  logo: https://raw.githubusercontent.com/TRC-Loop/Mak/main/.github/static/MakDocs.svg
 
 markdown_extensions:
   - admonition
@@ -52,3 +54,6 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/TRC-Loop/Mak
   generator: false
+
+extra_css:
+  - assets/custom.css
