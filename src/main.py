@@ -23,7 +23,7 @@ def sanitize_name(name: str) -> str:
     return name.lower()
 
 
-VERSION = (0,0,0)
+VERSION = (1,0,0)
 
 DEV_DEBUG_MODE = os.getenv("MAK_DEBUG_MODE", False)
 APP_NAME = os.getenv("MAK_APP_NAME", "TRCLoop/Mak")
