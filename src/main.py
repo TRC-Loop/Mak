@@ -278,7 +278,6 @@ def macros_list(
         print(f"No macros found for keybind '{keybind}'.")
         return
 
-    console = get_console()
     table = Table(title=f"Macros for '{keybind}'")
     table.add_column("Index", justify="right", style="cyan")
     table.add_column("Name", style="magenta")
