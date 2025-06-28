@@ -19,10 +19,31 @@ fi
 echo "✅ Repository cloned successfully."
 
 echo "ℹ️  Checking for pip or pip3..."
+# Initialize PYTHON_EXEC here with a sensible default
+PYTHON_EXEC="python3" # Default to python3
+
 if command -v pip3 &> /dev/null; then
     PIP_CMD="pip3"
+    PYTHON_EXEC="python3" # Ensure it matches pip version if possible
 elif command -v pip &> /dev/null; then
     PIP_CMD="pip"
+    # If 'pip' (which is often python2) is found but 'pip3' isn't,
+    # it's safer to still default to python3 for the main script unless you
+    # specifically know your main.py is python2 compatible, which is unlikely.
+    # So, we'll keep it as python3 unless the user's system is very old.
+    # If the user only has 'python' (aliased to python2 on old systems),
+    # then they might need to manually change this after install.
+    # For a robust solution, you might want to try to find `python` / `python3`
+    # and map them, but sticking to `python3` is generally safer for modern code.
+    if command -v python3 &> /dev/null; then
+        PYTHON_EXEC="python3"
+    elif command -v python &> /dev/null; then
+        PYTHON_EXEC="python" # Fallback to generic 'python' if 'python3' isn't there
+    else
+        echo "❌ No suitable Python executable found (python3 or python). Please install Python."
+        exit 1
+    fi
+
 else
     echo "❌ pip or pip3 not found. Please install Python package manager."
     exit 1
@@ -33,10 +54,6 @@ $PIP_CMD install -r "$CLONE_DIR/requirements.txt"
 echo "✅ Packages installed successfully."
 
 echo "ℹ️  Creating launcher script at $LAUNCHER_PATH..."
-# --- START OF MODIFIED LAUNCHER CONTENT ---
-# This shell script will execute the Python script with --shell,
-# capture its output using command substitution, and then eval it
-# in the current shell context.
 sudo tee "$LAUNCHER_PATH" > /dev/null <<EOF
 #!/bin/bash
 # This wrapper ensures 'cd' commands from Mak affect the current shell.
@@ -45,15 +62,15 @@ sudo tee "$LAUNCHER_PATH" > /dev/null <<EOF
 # Path to your Python source script
 SCRIPT_SRC_PATH="$CLONE_DIR/src/main.py"
 
-# Determine Python executable (use 'python3' for modern systems, 'python' might be older 2.x)
-PYTHON_EXEC="python3"
+# Determine Python executable (comes from the installer script's detection)
+# This will be substituted by the value of PYTHON_EXEC from the install.sh script itself.
+PYTHON_EXECUTABLE_TO_USE="$PYTHON_EXEC" # IMPORTANT: Use a new variable name to avoid confusion with the install script's var
 
 # Execute your Python script with the --shell option,
 # and eval its output in the current shell.
 # All arguments passed to 'mak' are forwarded to main.py's 'run' command.
-eval "\$($PYTHON_EXEC \"\$SCRIPT_SRC_PATH\" run --shell "\$@")"
+eval "\$($PYTHON_EXECUTABLE_TO_USE \"\$SCRIPT_SRC_PATH\" run --shell "\$@")"
 EOF
-# --- END OF MODIFIED LAUNCHER CONTENT ---
 
 sudo chmod +x "$LAUNCHER_PATH"
 echo "✅ Launcher script created and made executable."
