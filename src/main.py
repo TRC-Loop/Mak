@@ -94,83 +94,138 @@ def info():
     print("For help, use --help")
 
 
-@keybinds_app.command(name="add", help="Add a new Keybind to list")
-def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind for accessing Makros (Keep it short!)")]):
+
+@keybinds_app.command(name="add", help="Add a new Keybind")
+def keybinds_add(keybind: Annotated[str, typer.Argument(help="Keybind name")]):
     data = load_data()
     _keybind = sanitize_name(keybind)
-    
-    if not _keybind == keybind:
-        print(f"Keybind Sanitized: {keybind} -> {_keybind}")
 
-    if _keybind in data.get("keybinds", []):
+    if not _keybind == keybind:
+        print(f"Sanitized: {keybind} → {_keybind}")
+
+    if _keybind in data:
         print("Keybind already exists.")
         raise typer.Abort()
 
-    data.setdefault("keybinds", []).append(_keybind)
+    data[_keybind] = {"macros": []}
     save_data(data)
     print(f"Added keybind: {_keybind}")
+
 
 @keybinds_app.command(name="list", help="List all Keybinds")
 def keybinds_list():
     data = load_data()
-    keybinds = data.get("keybinds", [])
+    keybinds = list(data.keys())
+
     if not keybinds:
         print("No keybinds found.")
-    else:
-        if not keybinds:
-            print("No keybinds found.")
-            return
+        return
 
-        console = Console()
-        table = Table(title="Registered Keybinds")
+    console = Console()
+    table = Table(title="Registered Keybinds")
+    table.add_column("Index", justify="right", style="cyan")
+    table.add_column("Keybind", style="magenta")
 
-        table.add_column("Index", justify="right", style="cyan", no_wrap=True)
-        table.add_column("Keybind", style="magenta")
+    for i, kb in enumerate(keybinds, 1):
+        table.add_row(str(i), kb)
 
-        for i, kb in enumerate(keybinds, 1):
-            table.add_row(str(i), kb)
+    print(table)
 
-        print(table)
 
-@keybinds_app.command(name="remove", help="Remove a Keybind from list")
+@keybinds_app.command(name="remove", help="Remove a Keybind")
 def keybinds_remove(keybind: Annotated[str, typer.Argument(help="Keybind to remove")]):
     data = load_data()
-    keybinds = data.get("keybinds", [])
-    if keybind not in keybinds:
+    if keybind not in data:
         print("Keybind not found.")
         raise typer.Abort()
 
-    keybinds.remove(keybind)
+    del data[keybind]
     save_data(data)
     print(f"Removed keybind: {keybind}")
 
 
 
-@macros_app.command(name="add", help="Create a new makro")
+@macros_app.command(name="add", help="Create a new macro")
 def macros_add(
-    keybind: Annotated[str, typer.Argument(help="Existing Keybind to map makro to")],
-    name: Annotated[str, typer.Argument(help="Name used to call/use makro")],
-    command: Annotated[
-        str,
-        typer.Argument(
-            help=(
-                "Set the command executed. Use {<0, 1, ...>} for arguments and "
-                "separate commands using (default) ; (semicolons). "
-                "Example: 'mkdir {0};cd {0};touch {1}.txt'"
-            )
-        ),
-    ],
-    seperator: Annotated[
-        str,
-        typer.Option(
-            "-s", "--seperator", "--sep",
-            help="One-Char separator for command",
-            show_default=True
-        )
-    ] = ";"
+    keybind: Annotated[str, typer.Argument(help="Existing keybind")],
+    name: Annotated[str, typer.Argument(help="Name of the macro")],
+    command: Annotated[str, typer.Argument(help="Command to run")],
+    seperator: Annotated[str, typer.Option("--sep", "-s", help="Command separator")] = ";"
 ):
     data = load_data()
-    commands = command.split(seperator)
+
+    if keybind not in data:
+        print(f"Keybind '{keybind}' does not exist.")
+        raise typer.Abort()
+
+    macro = {
+        "name": sanitize_name(name),
+        "commands": command.split(seperator)
+    }
+
+    existing_macros = data[keybind].setdefault("macros", [])
+
+    if any(m["name"] == macro["name"] for m in existing_macros):
+        print(f"Macro '{macro['name']}' already exists under keybind '{keybind}'.")
+        raise typer.Abort()
+
+    existing_macros.append(macro)
+    save_data(data)
+    print(f"[green]Macro '{macro['name']}' added to keybind '{keybind}'")
+    print("[gray]-> Command:", command)
+
+
+@macros_app.command(name="list", help="List all macros for a keybind")
+def macros_list(
+    keybind: Annotated[str, typer.Argument(help="Keybind to list macros for")]
+):
+    data = load_data()
+    if keybind not in data:
+        print(f"Keybind '{keybind}' not found.")
+        raise typer.Abort()
+
+    macros = data[keybind].get("macros", [])
+
+    if not macros:
+        print(f"No macros found for keybind '{keybind}'.")
+        return
+
+    console = Console()
+    table = Table(title=f"Macros for '{keybind}'")
+    table.add_column("Index", justify="right", style="cyan")
+    table.add_column("Name", style="magenta")
+    table.add_column("Commands", style="green")
+
+    for i, macro in enumerate(macros, 1):
+        command_str = " ; ".join(macro["commands"])
+        table.add_row(str(i), macro["name"], command_str)
+
+    print(table)
+
+@macros_app.command(name="remove", help="Remove a macro from a keybind")
+def macros_remove(
+    keybind: Annotated[str, typer.Argument(help="Keybind to remove macro from")],
+    name: Annotated[str, typer.Argument(help="Macro name to remove")]
+):
+    data = load_data()
+    if keybind not in data:
+        print(f"Keybind '{keybind}' not found.")
+        raise typer.Abort()
+
+    macros = data[keybind].get("macros", [])
+    name = sanitize_name(name)
+
+    new_macros = [m for m in macros if m["name"] != name]
+
+    if len(new_macros) == len(macros):
+        print(f"No macro named '{name}' found under '{keybind}'.")
+        raise typer.Abort()
+
+    data[keybind]["macros"] = new_macros
+    save_data(data)
+    print(f"Macro '{name}' removed from keybind '{keybind}'.")
+
+
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.") 
 app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.")
 app.add_typer(config_app, name="config", help="Manage Configuration of Mak.")
