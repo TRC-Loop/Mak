@@ -32,7 +32,7 @@ def sanitize_name(name: str) -> str:
     return name.lower()
 
 
-VERSION = (1, 0, 0)
+VERSION = (1, 0, 1)
 
 DEV_DEBUG_MODE = os.getenv("MAK_DEBUG_MODE", "False").lower() == "true"
 APP_NAME = os.getenv("MAK_APP_NAME", "TRCLoop/Mak")
@@ -334,14 +334,14 @@ def run_macro(
 
     if not data:
         console.print("[bold red]No macros found.[/bold red]")
-        raise typer.Exit()
+        raise typer.Abort()
 
     if not keybind:
         try:
             keybind = select_from_list("Available Keybinds", list(data.keys()))
         except ValueError as e:
             console.print(f"[red]{e}[/red]")
-            raise typer.Exit(code=1) from e
+            raise typer.Abort() from e
 
 
     if keybind not in data:
@@ -351,7 +351,7 @@ def run_macro(
     macros = data[keybind].get("macros", [])
     if not macros:
         console.print(f"[red]No macros available under keybind '{keybind}'.[/red]")
-        raise typer.Exit()
+        raise typer.Abort()
 
     if not name:
         macro_names = [m["name"] for m in macros]
@@ -359,7 +359,7 @@ def run_macro(
             name = select_from_list(f"Available Macros for '{keybind}'", macro_names)
         except ValueError as e:
             console.print(f"[red]{e}[/red]")
-            raise typer.Exit(code=1) from e
+            raise typer.Abort() from e
 
 
     name = sanitize_name(name)
@@ -393,7 +393,7 @@ def run_macro(
 
         if result.returncode != 0:
             console.print(f"[red]Command failed with code {result.returncode}[/red]")
-            raise typer.Exit(code=result.returncode)
+            raise typer.Abort(code=result.returncode)
 
 
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.")
