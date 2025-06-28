@@ -1,3 +1,4 @@
+
 site_name: Mak
 theme:
   name: material
@@ -16,9 +17,12 @@ theme:
     - content.tooltips
     - navigation.instant
   palette:
-    - scheme: default
+    - scheme: slate
       primary: blue
       accent: teal
+  repo_url: https://github.com/TRC-Loop/Mak
+  repo_name: TRC-Loop/Mak
+  repo_icon: fontawesome/brands/github
 
 markdown_extensions:
   - admonition
