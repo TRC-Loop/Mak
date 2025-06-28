@@ -27,11 +27,8 @@ def sanitize_name(name: str) -> str:
     Returns:
         str: The sanitized name.
     """
-    # Replace spaces and underscores with hyphens
     name = re.sub(r'[ _]+', '-', name)
-    # Remove all non-valid characters (keep alphanum, hyphen)
     name = re.sub(r'[^a-zA-Z0-9\-]', '', name)
-    # Lowercase
     return name.lower()
 
 
@@ -375,7 +372,6 @@ def run_macro(
         set(int(i) for cmd in macro["commands"] for i in re.findall(r"{(\d+)}", cmd))
     )
 
-    # Falls zu wenig Argumente gegeben, noch abfragen
     while len(args) < len(arg_indices):
         idx = arg_indices[len(args)]
         val = typer.prompt(f"Enter value for argument {{{idx}}}")
