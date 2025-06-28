@@ -1,18 +1,15 @@
+import os
+import re
+from typing_extensions import Annotated, Optional
+from typing import List
 import typer
 import subprocess
-import os
 import questionary
 from rich import print
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
-from rich.prompt import Prompt
-from rich.align import Align
-from typing_extensions import Annotated, Optional
-from typing import List
 from platformdirs import user_config_dir
 import orjson
-import re
 
 def sanitize_name(name: str) -> str:
     # Replace spaces and underscores with hyphens
@@ -32,7 +29,7 @@ DATASTORE_NAME = os.getenv("MAK_DATASTORE_NAME", "data.json")
 
 
 GITHUB_LINK = "https://github.com/TRC-Loop/Mak"
-ASCII_ART = "                                                               █████             \n                                                              ███████            \n     ██████████████████         ███████                       ███████            \n    ██████     █████████       ████████                       ███████            \n   ██████      █████████      ████████                       ███████             \n   ██████      █████████     █████████     ████████████████  █████████████████   \n   ██████     ███████████   ███ ██████   ██████    ███████   ████████  ███████   \n    ██████    ███████████  ███ ███████  ██████     ███████  ████████   ███████   \n             ████ ███████ ████ ███████ ███████    ████████  ███████    ███████   \n            █████  ██████████  ██████  ██████     ███████   ███████  ███████     \n            ████   █████████  ███████ ███████     ███████  ███████ ███████       \n           ████    ████████   ███████ ███████    ███████   ███████ ███████       \n         ██████     ██████    ███████ ███████    ███████  ████████  ███████      \n      ████████      █████     ███████  ██████   █████████ ███████   █████████    \n       █████        ████      ████████   ███████  ███████ ███████     ██████     \n                              ████████                                           \n                               ████████                                          \n                                 ████"
+ASCII_ART = "                                                               █████             \n                                                              ███████            \n     ██████████████████         ███████                       ███████            \n    ██████     █████████       ████████                       ███████            \n   ██████      █████████      ████████                       ███████             \n   ██████      █████████     █████████     ████████████████  █████████████████   \n   ██████     ███████████   ███ ██████   ██████    ███████   ████████  ███████   \n    ██████    ███████████  ███ ███████  ██████     ███████  ████████   ███████   \n             ████ ███████ ████ ███████ ███████    ████████  ███████    ███████   \n            █████  ██████████  ██████  ██████     ███████   ███████  ███████     \n            ████   █████████  ███████ ███████     ███████  ███████ ███████       \n           ████    ████████   ███████ ███████    ███████   ███████ ███████       \n         ██████     ██████    ███████ ███████    ███████  ████████  ███████      \n      ████████      █████     ███████  ██████   █████████ ███████   █████████    \n       █████        ████      ████████   ███████  ███████ ███████     ██████     \n                              ████████                                           \n                               ████████                                          \n                                 ████" # pylint: disable=line-too-long
 _config_dir = user_config_dir(APP_NAME)
 _config_path = os.path.join(_config_dir, CONFIG_NAME)
 _datastore_path = os.path.join(_config_dir, DATASTORE_NAME)
@@ -295,6 +292,5 @@ def run_macro(
 app.add_typer(keybinds_app, name="keys", help="Manage all available keybinds in Mak.") 
 app.add_typer(macros_app, name="maks", help="Manage all Makros in Mak.")
 app.add_typer(config_app, name="config", help="Manage Configuration of Mak.")
-
 if __name__ == "__main__":
     app()
