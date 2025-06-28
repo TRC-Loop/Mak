@@ -40,3 +40,6 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/TRC-Loop/Mak/main/script
 
 > Uninstall:
 > `bash -c "$(curl -fsSL https://raw.githubusercontent.com/TRC-Loop/Mak/main/scripts/uninstall.sh)"`
+
+# License
+This project is licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
