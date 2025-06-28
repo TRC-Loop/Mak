@@ -5,6 +5,7 @@ associated with these keybinds.
 """
 
 import os
+import sys
 import re
 import subprocess
 from typing import List, Optional
